@@ -14,7 +14,7 @@ DVBT2.SPEC_VERSION = '1.1.1'; % 1.1.1 is the original blue book, 1.2.1 is with t
 DVBT2.MODE          =     '1k';  % Mode
 DVBT2.EXTENDED      =        0;  % Extended carrier mode: 1=extended 0=normal
 DVBT2.GI_FRACTION   =      1/16;
-DVBT2.SP_PATTERN    =    'NONE';  % Scattered pilot pattern
+DVBT2.SP_PATTERN    =    'PP2';  % Scattered pilot pattern
 DVBT2.L_DATA        =       83;  % Data Symbols per T2-frame
 DVBT2.N_T2          =        2;  % Frames per superframe
 DVBT2.MISO_ENABLED  =        0;  % 1=MISO enabled 0=MISO disabled
@@ -38,8 +38,8 @@ DVBT2.PLP.BW            =         8; % Bandwidth in MHz (8, 7, 6 or 5)
 DVBT2.PLP(1).CONSTELLATION =  '64-QAM'; % Constellation
 DVBT2.PLP(1).CRATE         =     '2/3'; % High priority stream coding rate
 DVBT2.PLP(1).FECLEN        =     16200; % either 64800 or 16200
-DVBT2.PLP(1).NBLOCKS       =       50; % Number of FEC blocks in one Interleaving Frame 
-DVBT2.PLP(1).NUM_BLOCKS_MAX =       50; % Max number of FEC blocks in one Interleaving Frame
+DVBT2.PLP(1).NBLOCKS       =       10; % Number of FEC blocks in one Interleaving Frame 
+DVBT2.PLP(1).NUM_BLOCKS_MAX =       10; % Max number of FEC blocks in one Interleaving Frame
 DVBT2.PLP(1).NTI           =         3; % Number of TI blocks in Interleaving Frame 
                                         % (if 0 the interleaver is bypassed)
 DVBT2.PLP(1).P_I           =         1; % Number of T2-frames to which Interleaving Frame is mapped

@@ -1,0 +1,68 @@
+load('snr_ber_LowDS-W-DS-1k-FouFou.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+
+load('snr_ber_LowDS-WO-DS-1k-FouFou.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+load('snr_ber_LowDS-W-DS-1k-FouDCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-+b')
+
+
+load('snr_ber_LowDS-W-DS-1k-SincDCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-*k')
+
+load('snr_ber_LowDS-W-DS-1k-RCFourDCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-sy')
+
+load('snr_ber_LowDS-W-DS-1k-RCSincDCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-vm')
+
+load('snr_ber_LowDS-W-DS-1k-WaveletDCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-dc')
+
+
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler 1K mode for adjusted L'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('Fourier with Doppler Search','Fourier without Doppler Search','DCT-II with Doppler Search','DCTT-II with Sinc Delay','DCTT-II with RC-Fourier Delay','DCTT-II with RC sinc Delay','DCTT-II with Wavelet Delay')
+
+
+
+
+
+
+load('snr_ber_LowDS-W-DS-8k.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+
+load('snr_ber_LowDS-WO-DS-8k.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler 8K Mode'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('With Doppler Search','Without Doppler Search')
+
+
+
+
+
+
+
+
+
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-+b')
+load('snr_ber_DCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-*k')
+load('snr_ber_expDCT.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-sy')
+load('snr_ber_Gabor.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-vm')
+load('snr_ber_Fourier-MorletWavelt.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-dc')

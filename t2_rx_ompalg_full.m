@@ -56,8 +56,8 @@ if ENABLED
 
   % Creating dictionary for matching pursuit
   % Insert scattered pilots  
-  L = 301;
-  %L = ceil(1*0.2500/(NFFT * ts))
+%   L = 301;
+  L = ceil(1*0.2500/(NFFT * ts))
   K = TU*GI/(1e-9)
   P = 32;
   

@@ -131,15 +131,77 @@ for ii = 1:num
 
         for k = 1:length(tau)
   Indx = 0:(NFFT-1);
-  %freqIndx = 1:NFFT;
-  %freqIndx = freqIndx - (NFFT/2) - 1;
-  %carSpacing = 1/TU;
-  %freqIndx = 2 * pi * freqIndx * carSpacing;
-  %hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
-  %hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
-  h_sinc = ro(k) * fftshift(sinc(1*(Indx-(tau(k)*1e-6)/ts)));
-  hTD(k,:) = h_sinc;
-  %hTD(k,:) = hT_DS(k,:);
+  
+%%%%%%%%%%%%%%%%%%%%% DELAY ATOM%%%%%%%%%%%%%%%%%%%
+  %%% Fourier Atoms
+%   freqIndx = 1:NFFT;
+%   freqIndx = freqIndx - (NFFT/2) - 1;
+%   carSpacing = 1/TU;
+%   freqIndx = 2 * pi * freqIndx * carSpacing;
+%   hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+%   hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
+%   hTD(k,:) = hT_DS(k,:);
+%   
+
+  %%% Sinc Atoms
+%   h_sinc = ro(k) * fftshift(sinc(1*(Indx-(tau(k)*1e-6)/ts)));
+%   hTD(k,:) = h_sinc;
+
+
+%%% Gabor Atom
+%%% Dialation by ts and translation via Tau
+%%%Not working
+%     Index_new = (Indx*ts -(tau(k)*1e-6)).^2;
+%     Index_new = Index_new/((ts).^2);
+%     dic_Ind = exp(-Index_new);
+%     hTD(k,:) = hTD(k,:)+ ro(k) *fftshift(dic_Ind);
+
+
+
+%%% Wavelet(Shannon) Atoms
+%%% Dialation by ts and translation via Tau
+    Index_new = Indx -(tau(k)*1e-6)/ts;
+    dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+    hTD(k,:) =  ro(k) *fftshift(dic_Ind);
+
+
+    
+%%% Raised cosine Filter with Wavelet(Shannon) Atoms
+%%% Dialation by ts and translation via Tau
+%     rol = 0.025;
+%     Index_new = Indx -(tau(k)*1e-6)/ts;
+%     dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+%     Filt = cos(rol.*pi.*Index_new)./(1-((2.*rol.*Index_new).^2));
+%     hTD(k,:) =  ro(k) *fftshift(dic_Ind.*Filt);
+
+    
+    
+
+  
+%%% raised cosine filter with sinc Atoms
+%   rol = 0.25; %0.025; % Old simulations;
+%   Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
+%   Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
+%   h_sinc = ro(k) * fftshift(sinc(Indx_f).*Filt);
+%   hTD(k,:) = h_sinc;
+%   
+
+
+ %Raised Cosine filter with Fourier Atoms
+
+%   rol = 0.25; %0.025; % Old simulations
+%   Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
+%   Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
+%  
+%   freqIndx = 1:NFFT;
+%   freqIndx = freqIndx - (NFFT/2) - 1;
+%   carSpacing = 1/TU;
+%   freqIndx = 2 * pi * freqIndx * carSpacing;
+%   hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+%   hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))).*Filt);
+%   hTD(k,:) = hT_DS(k,:);
+  
+
         end
 
   hT_DSS = (hTD(:,:));
@@ -149,10 +211,56 @@ lenDop = 1*(NFFT + nCP);
 indx_ds = zeros(length(tau),NFFT);
 for t = 1:length(tau)
 hT_DSS(t,:) = fftshift(hT_DSS(t,:));
-doppIndx = fd(t)*(0:(lenDop-1));
-doppIndx = 2 * pi * doppIndx * ts;
-doppIndx = exp(1j*doppIndx);
-indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+
+%%%%%%%%%%%%%%%%%%%%% DOPPLER ATOM%%%%%%%%%%%%%%%%%%%
+%%% Fourier Dictionary
+%     doppIndx = fd(t)*(0:(lenDop-1));
+%     doppIndx = 2 * pi * doppIndx * ts;
+%     doppIndx = exp(1j*doppIndx);
+%     indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+
+
+%%% cosine dictionary
+  doppIndx = 0:(lenDop-1);
+  Fd_disc = fd(t)*ts;
+%   doppIndx = cos(2.*pi.*Fd_disc.* doppIndx); %DCT-I
+
+%   doppIndx = exp(doppIndx);  % exponential DCT
+
+  doppIndx = cos(pi.*(doppIndx +1/2).*Fd_disc); %DCT-II
+  indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+
+
+  
+%gabor dictionary  
+  
+%   Indx1 = 0:lenDop-1;
+%   doppIndx = Indx1*ts - (tau(k)*1e-6);
+%   doppIndx = 2*pi*fd(k)*doppIndx;
+%   indx_ds(t,:) = cos(doppIndx(nCP+1:nCP+NFFT) + phi(k));
+
+
+%%% Wavelet(Shannon) Atoms
+%%% Dialation by (1/TU) and translation via Fd
+%%% Not working
+%   doppIndx = 1:lenDop;
+%   doppIndx = doppIndx - (lenDop/2) -1;
+%   carSpacing = 1/TU;
+%   doppIndx = doppIndx -fd(k)/(carSpacing);
+%   dic_Ind = (2*sinc(2*doppIndx) - sinc(doppIndx))/sqrt(carSpacing);
+%   indx_ds(t,:) = fftshift(ifft(fftshift(dic_Ind(nCP+1:nCP+NFFT))));
+
+%%% Wavelet(Morlet) Atom
+%%% Dialation by (ts) and translation via Fd
+%%% 
+%   doppIndx = 0:(lenDop-1);
+%   doppIndx = doppIndx*ts;% - (tau(k)*1e-6);
+%   dic_Ind = exp(1j*2*pi*fd(k).*doppIndx).*exp(-(doppIndx.^2)/2)./(pi.^(1/4));
+%   indx_ds(t,:)= dic_Ind(nCP+1:nCP+NFFT);
+%   
+  
+
+
 %doppIndx_re = exp(-1j*doppIndx);
 %indx_ds_rev = doppIndx_re(nCP+1:nCP+NFFT);
 %indx_ds_rev = (ifft(indx_ds_rev));

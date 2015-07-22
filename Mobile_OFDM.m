@@ -29,46 +29,60 @@ k=1;
       DVBT2.GI_FRACTION   =     scenarios{k,8};
   end
   
+  
+  
   % UPDATE Depedent variables
   DVBT2.STANDARD = t2_std_config_wr(DVBT2);
   FidLogFile = 1;
   K = 100;  
   L = 100;
-  ll = 0;
-  kk = 45;
-  DVBT2.L = ll; % Doppler steps
-  DVBT2.K = kk; % Doppler steps
-   % Change the SNR
-  s = DVBT2.PLP(1).CONSTELLATION;
-  pos2 = strfind(s,'-');
-  SNR0 = 10*log10(log2(str2num(s(1:pos2-1))));
-  %SNR0 = 0;
-  DVBT2.CH.NOISE.SNR = kk + SNR0 + 0.39;
-  DVBT2.CH.PSCEN.ENABLE=1;
-                        
-%% ####################################################################
-% Transmitter
-%####################################################################
-t2_tx_dvbt2bltx(DVBT2, FidLogFile);              
+  ber_pilot = []; %modified
+  snr_pilot = []; %modified
+  snr_scn = [0 0:5:45];
+   snr_scn = [45];
+  for j=1:length(snr_scn) %modified
+      ll = 0;
+    %   kk = 45;
+      kk = snr_scn(j)
+      DVBT2.L = ll; % Doppler steps
+      DVBT2.K = kk; % Doppler steps
+       % Change the SNR
+      s = DVBT2.PLP(1).CONSTELLATION;
+      pos2 = strfind(s,'-');
+      SNR0 = 10*log10(log2(str2num(s(1:pos2-1))));
+      %SNR0 = 0;
+      DVBT2.CH.NOISE.SNR = kk + SNR0 + 0.39;
+      DVBT2.CH.PSCEN.ENABLE=1;
 
-%% ####################################################################
-% Channel
-%####################################################################      
-% Channel propagation scenario
-t2_ch_pscen_wr(DVBT2, FidLogFile)
-% Noise
-t2_ch_noise_wr(DVBT2, FidLogFile)
+    %% ####################################################################
+    % Transmitter
+    %####################################################################
+    t2_tx_dvbt2bltx(DVBT2, FidLogFile);              
 
-%% ####################################################################
-% Receiver
-%####################################################################
-[result] = t2_rx_dvbt2blrx(DVBT2, FidLogFile);
+    %% ####################################################################
+    % Channel
+    %####################################################################      
+    % Channel propagation scenario
+    t2_ch_pscen_wr(DVBT2, FidLogFile)
+    % Noise
+    t2_ch_noise_wr(DVBT2, FidLogFile)
 
-%% ####################################################################
-% Chan estimation
-%####################################################################
+    %% ####################################################################
+    % Receiver
+    %####################################################################
+    [result] = t2_rx_dvbt2blrx(DVBT2, FidLogFile);
 
-%% ####################################################################
-% Equalization
-%####################################################################
+     ber_pilot = [ber_pilot; result.BER.DMAP]; %modified
+     snr_pilot = [snr_pilot; snr_scn(j)]; %modified
+%      snr_pilot = [snr_pilot; DVBT2.CH.NOISE.SNR]; %modified
+
+    %% ####################################################################
+    % Chan estimation
+    %####################################################################
+
+    %% ####################################################################
+    % Equalization
+    %####################################################################
+ end  %modified
 toc
+save('snr_ber_ORG.mat','ber_pilot', 'snr_pilot') %modified

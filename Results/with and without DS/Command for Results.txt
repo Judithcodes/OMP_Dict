@@ -1,0 +1,32 @@
+load('snr_ber_ORG-W-DS.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+
+load('snr_ber_ORG-WO-DS.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('With Doppler Search','Without Doppler Search')
+
+
+
+
+
+
+load('snr_ber_LowDS-W-DS-8k.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+
+load('snr_ber_LowDS-WO-DS-8k.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler 8K Mode'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('With Doppler Search','Without Doppler Search')

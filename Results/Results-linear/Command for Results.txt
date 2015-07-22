@@ -1,0 +1,112 @@
+Doppler Dictionaries
+
+load('snr_ber_ORG.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+load('snr_ber_Dop1.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+load('snr_ber_DCT.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-+b')
+load('snr_ber_DCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-*k')
+load('snr_ber_expDCT.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-sy')
+load('snr_ber_Gabor.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-vm')
+load('snr_ber_Fourier-MorletWavelt.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-dc')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('Fourier Dictionary','Gabor-old Dictionary','DCT-I  Dictionary','DCT-II Dictionary','Exponential DCT-I  Dictionary','Gabor Dictionary','Wavelet Dictionary')
+
+
+Delay-Doppler Dictionaries
+
+load('snr_ber_ORG.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+load('snr_ber_Cosrolfilt.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+load('snr_ber_RC four_DCTII.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-+b')
+load('snr_ber_RC fourier - Gabor.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-*k')
+load('snr_ber_RCSinc-Fourier.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-vm')
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('Fourier Dictionary','RC-Fourier Dictionary','RC-Fourier Dictionary-DCT II Doppler','RC-Fourier Dictionary-Gabor','RC-Sinc Dictionary-Fourier')
+
+
+
+Delay Dictionaries
+
+
+load('snr_ber_ORG.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+load('snr_ber_Cosrolfilt.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+load('snr_ber_Wavelet.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-vm')
+load('snr_ber_RC_Wavelet.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-+b')
+
+load('snr_ber_RCSinc-Fourier.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-*k')
+
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('Fourier Dictionary','RC-Fourier Dictionary','Wavelet Dictionary','RC-Wavelet Dictionary','RC-Sinc Dictionary')
+
+
+
+
+
+With and Without Doppler search for Fourier Atom(Doppler and Delay)
+
+
+load('snr_ber_LowDS-W-DS-FourFour.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+load('snr_ber_LowDS-WO-DS-FourFour.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler With Fourier Atoms'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('With Doppler Search','Without Doppler Search')
+
+
+
+
+With and Without Doppler search for Fourier Atom and Morlet Atom
+
+
+load('snr_ber_LowDS-W-DS-FourMorlet.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-og')
+hold on
+load('snr_ber_LowDS-WO-DS-FourMorlet.mat')
+semilogy(snr_pilot(2:end),ber_pilot(2:end),'-xr')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Linear Doppler With Fourier and Morlet Atoms'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('With Doppler Search','Without Doppler Search')
+
+

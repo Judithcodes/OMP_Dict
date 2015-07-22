@@ -1,0 +1,22 @@
+load('snr_ber_ORG.mat')
+semilogy(snr_sim(2:end),ber_sim(2:end),'-og')
+hold on
+
+load('snr_ber_Gabor.mat')
+semilogy(snr_sim(2:end),ber_sim(2:end),'-xr')
+
+load('snr_ber_DCT-I.mat')
+semilogy(snr_sim(2:end),ber_sim(2:end),'-+b')
+
+load('snr_ber_DCT-II.mat')
+semilogy(snr_sim(2:end),ber_sim(2:end),'-*k')
+
+load('snr_ber_expDCT.mat')
+semilogy(snr_sim(2:end),ber_sim(2:end),'-sy')
+
+hold off
+grid on
+title 'E_b/N_o vs. BER with Jakes Doppler'
+xlabel 'E_b/N_o'
+ylabel 'BER'
+legend('Fourier Dictionary','Gabor Dictionary','DCT-I  Dictionary','DCT-II Dictionary','Exponential DCT-I  Dictionary')

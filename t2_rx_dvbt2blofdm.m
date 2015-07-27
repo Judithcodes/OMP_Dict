@@ -29,6 +29,9 @@ NFFT     = DVBT2.STANDARD.NFFT;  % FFT number of points
 C_PS     = DVBT2.STANDARD.C_PS;
 C_L = 0;%(NFFT - C_PS - 1)/2 + 1;
 
+P2P_LOC     = DVBT2.STANDARD.P2P_LOC;    % P2 pilots locations
+N_P2        = DVBT2.STANDARD.N_P2;       % P2 symbols per frame
+
 ts = TU/NFFT;
 %p = sum(DataIn.*conj(DataIn))/length(DataIn);
 snr = 10^(SNR/10);
@@ -75,6 +78,28 @@ x = DataIn;
          fprintf(FidLogFile,'\t\tScattered pilot output  saved in file: %s\n',...
          SP_FNAME);
         end
+        
+        
+                
+        %%%% Saving the P2 pilot values
+        for symbIdx = 1:N_P2   % for each symbol
+            p2pLoc = P2P_LOC(find(P2P_LOC>0));
+            p2pLoc_rx_my  = data(symbIdx,C_L+p2pLoc);
+            if symbIdx==1
+                p2pLoc_rx_m_array = zeros(numSymb,length(p2pLoc_rx_my));
+            end
+            p2pLoc_rx_m_array(symbIdx,1:length(p2pLoc_rx_my)) = p2pLoc_rx_my;
+        end
+        
+        if N_P2 > 0
+            % Write P2 pilot to file
+            if ~strcmp(SP_FNAME, '')
+             save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array')
+             fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
+             SP_FNAME);
+            end        
+        end
+        
 
 % ----------------------------------------------------------------
        %data_che_est = t2_rx_bp(DVBT2, FidLogFile);

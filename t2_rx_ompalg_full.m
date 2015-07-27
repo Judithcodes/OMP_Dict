@@ -26,6 +26,7 @@ SP_LOC      = DVBT2.STANDARD.SP_LOC;     % Scattared pilots locations
 SP_PATTLEN  = DVBT2.STANDARD.SP_PATTLEN; % Scattered pilots pattern length
 C_PS     = DVBT2.STANDARD.C_PS;
 L_F         = DVBT2.STANDARD.L_F;       % Symbols per frame
+N_P2        = DVBT2.STANDARD.N_P2;       % P2 symbols per frame
 GUARD_INT = 1/DVBT2.GI_FRACTION; % Guard interval 
 nCP = fix(NFFT/GUARD_INT); % Number of samples of cyclic prefix
 C_L = (NFFT - C_PS - 1)/2 + 1;
@@ -66,6 +67,11 @@ if ENABLED
     tau = -1*ones(num,P);
     phi = -1*ones(num,P);    
     load(strcat(SIM_DIR, filesep, SP_FNAME), 'spLoc_rx_m_array'); % Load data
+    
+    if N_P2 > 0
+        load(strcat(SIM_DIR, filesep, SP_FNAME), 'p2pLoc_rx_m_array'); % Load p2 pilot data
+    end
+    
     global name0;
     global DICTIONARY;
     global time;
@@ -81,6 +87,8 @@ type = 0; % data symbol
 %------------------------------------------------------------------------------
 symbInFrame = mod(index-1, L_F);
 %symbInFrame = mod(index-1, 2);
+
+type = symbInFrame<N_P2;
             % TODO: take care of P2 edges
             if type == 1 % fill in p2 symbol pilot values
              refSequence = xor(prbs, PN_SEQ(symbInFrame + 1));
@@ -133,6 +141,18 @@ dataCP = fft(dataCP, Ly2);
         r0 = y(1:numSymb);
         c_s1 = 0;
         x1_est = [];
+        
+        
+%%%%% Using P2 Pilots for estimation        
+        if type == 1
+            numSymb = length(find(abs(p2pLoc_rx_m_array(index,:))>0));
+            y = p2pLoc_rx_m_array(index,1:numSymb);
+            r0 = y(1:numSymb);
+        end
+        
+        
+        
+        
    
   %search = t2_rx_ompalg_nano_intervalsearch_wodict(DVBT2, FidLogFile, r0, c_s1, x1_est, tau0, fd0, numSymb, index, type, K, L); %fprintf(FidLogFile,'\tDVBT2-RX-nano search %d\n');
   search = t2_rx_ompalg_nano_intervalsearch(DVBT2, FidLogFile, loc1, dataCP, r0, c_s1, x1_est, tau0, fd0, numSymb, index, type, K, L, 1); %fprintf(FidLogFile,'\tDVBT2-RX-nano search %d\n');

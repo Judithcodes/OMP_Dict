@@ -340,7 +340,7 @@ C_LOC = NFFT/2-(C_PS-1)/2+1:NFFT/2+(C_PS-1)/2+1; % calculate FFT bins for used c
 % Number of Frame Closing Symbols, i.e. 0 or 1:
 L_FC  = t2_std_dvbt2_bl_fc_use(DVBT2.MODE, DVBT2.GI_FRACTION, DVBT2.SP_PATTERN, DVBT2.MISO_ENABLED);
 
-if ~DVBT2.TX.FBUILD.ENABLE && DVBT2.TX.DMCELLS.ENABLE && ~DVBT2.TX.P2.ENABLE 
+if ~DVBT2.TX.FBUILD.ENABLE && DVBT2.TX.DMCELLS.ENABLE
   N_P2 = 0;
   L_FC = 0;
 end 

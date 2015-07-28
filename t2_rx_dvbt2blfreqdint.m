@@ -48,7 +48,7 @@ evenNormalSymbols = evenSymbols(mod(evenSymbols, L_F)>=N_P2 & mod(evenSymbols, L
 oddNormalSymbols = oddSymbols(mod(oddSymbols, L_F)>=N_P2 & mod(oddSymbols, L_F)<L_F-L_FC);
 
 % Data
-symDeintlv = nan(C_DATA, numSymb);
+symDeintlv = zeros(C_DATA, numSymb);
 
 symDeintlv(1+hSEvenP2,evenP2Symbols+1) = dataAux(1:C_P2,evenP2Symbols+1); % Even P2
 symDeintlv(1+hSOddP2,oddP2Symbols+1) = dataAux(1:C_P2,oddP2Symbols+1); %Odd P2
@@ -61,7 +61,7 @@ symDeintlv(1+hSEvenFC,evenFCSymbols+1) = dataAux(1:N_FC,evenFCSymbols+1); % Even
 symDeintlv(1+hSOddFC,oddFCSymbols+1) = dataAux(1:N_FC,oddFCSymbols+1); %Odd Frame Closing
 
 % Channel estimate
-hest_symDeintlv = nan(C_DATA, numSymb);
+hest_symDeintlv = zeros(C_DATA, numSymb);
 
 hest_symDeintlv(1+hSEvenP2,evenP2Symbols+1) = hest(1:C_P2,evenP2Symbols+1); % Even P2
 hest_symDeintlv(1+hSOddP2,oddP2Symbols+1) = hest(1:C_P2,oddP2Symbols+1); %Odd P2
@@ -73,23 +73,9 @@ hest_symDeintlv(1+hSOdd,oddNormalSymbols+1) = hest(:,oddNormalSymbols+1); %Odd N
 %hest_symDeintlv(1+hSOddFC,oddFCSymbols+1) = hest(1:N_FC,oddFCSymbols+1); %Odd Frame Closing
 
 dataAux = reshape(symDeintlv, C_DATA*numSymb, 1);
-if(~DVBT2.TX.FBUILD.ENABLE && N_P2 > 0) 
-%%% Consider the unused elements when recovering data back
-    ind1 = find(isnan(symDeintlv));
-    dataAux(ind1) = [];  
-    dataAux = [dataAux; nan(length(ind1),1)];
-    % dataAux = [dataAux(1:20250); nan(length(ind1),1); dataAux(20251:end)];
-end
 clear symDeintlv;
 
 hest = reshape(hest_symDeintlv, C_DATA*numSymb, 1);
-if(~DVBT2.TX.FBUILD.ENABLE && N_P2 > 0)
-%%% Consider the unused elements when recovering data back
-    ind1 =find(isnan(hest_symDeintlv)); 
-    hest(ind1) = [];   
-    hest = [hest; nan(length(ind1),1)];
-    % hest = [hest(1:20250); nan(length(ind1),1); hest(20251:end)];
-end
 clear hest_symDeintlv;
 
 fprintf(FidLogFile,'\t\tSymbol de-interlv: %d de-interleaved symbols\n',... 

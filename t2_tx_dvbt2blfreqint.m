@@ -31,28 +31,7 @@ fprintf(FidLogFile,'\t\tMode=%s \n', MODE);
         
 % Symbol permutation matrices
 [hSEven, hSOdd, hSEvenP2, hSOddP2, hSEvenFC, hSOddFC] = t2_tx_dvbt2blfreqint_spermat(DVBT2);
-
-
 % TODO: apply the P2 and Frame Closing values in those symbols
-if(~DVBT2.TX.FBUILD.ENABLE && N_P2 > 0)
-    dumDataWid = C_DATA-C_P2
-    dumDataLen = length(data) + N_P2*dumDataWid;
-    % DummyData = nan(1,dumDataWid) %% Not needed since matrix already has NAN
-
-    Data_new = nan(1,dumDataLen);
-
-    for i=0:(N_P2-1)
-        Data_new((i*C_DATA + 1):(i*C_DATA + C_P2)) = data((i*C_P2+1):(i*C_P2+C_P2));
-    %     Data_new((i*C_DATA + C_P2+1): (i*C_DATA + C_DATA)) = DummyData;  %% Not needed since matrix already has NAN
-    end
-    i=i+1;
-    Data_new((i*C_DATA + 1):end) = data((i*C_P2+1):end);
-
-    data = Data_new.';
-    clear Data_new dumDataWid dumDataLen;
-end
-% TODO: Consider adding dummy data here
-
 % TODO: apply thinning in frame closing symbol
 
 % Only complete OFDM symbols can be interleaved

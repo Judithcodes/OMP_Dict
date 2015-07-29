@@ -32,13 +32,13 @@ end
   %%%%%%%%%%%%%%%%%%%%% DELAY ATOM%%%%%%%%%%%%%%%%%%%
   
   %%%Fourier Atoms
-%   freqIndx = 1:NFFT;
-%   freqIndx = freqIndx - (NFFT/2) - 1;
-%   carSpacing = 1/TU;
-%   freqIndx = 2 * pi * freqIndx * carSpacing;
-%   hF_DS(k,:) = hF_DS(k,:) + exp(1j*( Phi(k) - freqIndx*Tau(k)*1e-6));
-%   hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:)))); 
-%   hTD(k,:) = hT_DS(k,:);
+  freqIndx = 1:NFFT;
+  freqIndx = freqIndx - (NFFT/2) - 1;
+  carSpacing = 1/TU;
+  freqIndx = 2 * pi * freqIndx * carSpacing;
+  hF_DS(k,:) = hF_DS(k,:) + exp(1j*( Phi(k) - freqIndx*Tau(k)*1e-6));
+  hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:)))); 
+  hTD(k,:) = hT_DS(k,:);
 
   
   
@@ -59,9 +59,9 @@ end
 
 %%% Wavelet(Shannon) Atoms
 %%% Dialation by ts and translation via Tau
-    Index_new = Indx -(Tau(k)*1e-6)/ts;
-    dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
-    hTD(k,:) = fftshift(dic_Ind);
+%     Index_new = Indx -(Tau(k)*1e-6)/ts;
+%     dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+%     hTD(k,:) = fftshift(dic_Ind);
 
     
 %%% Raised cosine Filter with Wavelet(Shannon) Atoms

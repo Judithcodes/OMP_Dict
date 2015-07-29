@@ -31,6 +31,8 @@ C_L = 0;%(NFFT - C_PS - 1)/2 + 1;
 
 P2P_LOC     = DVBT2.STANDARD.P2P_LOC;    % P2 pilots locations
 N_P2        = DVBT2.STANDARD.N_P2;       % P2 symbols per frame
+L_FC        = DVBT2.STANDARD.L_FC;       % FC symbols per frame 1 or 0
+FCP_LOC     = DVBT2.STANDARD.FCP_LOC;    % FC pilots locations
 
 ts = TU/NFFT;
 %p = sum(DataIn.*conj(DataIn))/length(DataIn);
@@ -82,23 +84,47 @@ x = DataIn;
         
                 
         %%%% Saving the P2 pilot values
-        for symbIdx = 1:N_P2   % for each symbol
-            p2pLoc = P2P_LOC(find(P2P_LOC>0));
-            p2pLoc_rx_my  = data(symbIdx,C_L+p2pLoc);
-            if symbIdx==1
-                p2pLoc_rx_m_array = zeros(numSymb,length(p2pLoc_rx_my));
+        for symbIdx = 1:numSymb   % for each symbol
+            symbInFrame = mod(symbIdx-1, L_F);
+            if(symbInFrame<N_P2) %% It is a P2 symbol
+                p2pLoc = P2P_LOC(find(P2P_LOC>0));
+                p2pLoc_rx_my  = data(symbIdx,C_L+p2pLoc);
+                if symbIdx==1
+                    p2pLoc_rx_m_array = nan(numSymb,length(p2pLoc_rx_my));
+                end
+                p2pLoc_rx_m_array(symbIdx,1:length(p2pLoc_rx_my)) = p2pLoc_rx_my;
             end
-            p2pLoc_rx_m_array(symbIdx,1:length(p2pLoc_rx_my)) = p2pLoc_rx_my;
+            
+            if((symbInFrame == L_F-L_FC)) %% it is a frame closing symbol
+                fcpLoc = FCP_LOC(find(FCP_LOC>0));
+                fcpLoc_rx_my  = data(symbIdx,C_L+fcpLoc);
+               if(~exist('fcpLoc_rx_m_array', 'var'))
+                   fcpLoc_rx_m_array = nan(numSymb,length(fcpLoc_rx_my));
+               end
+                fcpLoc_rx_m_array(symbIdx,1:length(fcpLoc_rx_my)) = fcpLoc_rx_my;
+            end
         end
         
         if N_P2 > 0
-            % Write P2 pilot to file
-            if ~strcmp(SP_FNAME, '')
-             save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array')
-             fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
-             SP_FNAME);
-            end        
+            if L_FC > 0
+            %%% Write P2 and FC pilot to file
+                if ~strcmp(SP_FNAME, '')
+                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array','fcpLoc_rx_m_array')
+                 fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
+                 SP_FNAME);
+                end        
+            else
+                % Write P2 pilot to file
+                if ~strcmp(SP_FNAME, '')
+                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array')
+                 fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
+                 SP_FNAME);
+                end 
+            end
         end
+        
+        
+        
         
 
 % ----------------------------------------------------------------
@@ -159,14 +185,14 @@ for ii = 1:num
   
 %%%%%%%%%%%%%%%%%%%%% DELAY ATOM%%%%%%%%%%%%%%%%%%%
   %%% Fourier Atoms
-%   freqIndx = 1:NFFT;
-%   freqIndx = freqIndx - (NFFT/2) - 1;
-%   carSpacing = 1/TU;
-%   freqIndx = 2 * pi * freqIndx * carSpacing;
-%   hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
-%   hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
-%   hTD(k,:) = hT_DS(k,:);
-%   
+  freqIndx = 1:NFFT;
+  freqIndx = freqIndx - (NFFT/2) - 1;
+  carSpacing = 1/TU;
+  freqIndx = 2 * pi * freqIndx * carSpacing;
+  hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+  hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
+  hTD(k,:) = hT_DS(k,:);
+  
 
   %%% Sinc Atoms
 %   h_sinc = ro(k) * fftshift(sinc(1*(Indx-(tau(k)*1e-6)/ts)));
@@ -185,9 +211,9 @@ for ii = 1:num
 
 %%% Wavelet(Shannon) Atoms
 %%% Dialation by ts and translation via Tau
-    Index_new = Indx -(tau(k)*1e-6)/ts;
-    dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
-    hTD(k,:) =  ro(k) *fftshift(dic_Ind);
+%     Index_new = Indx -(tau(k)*1e-6)/ts;
+%     dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+%     hTD(k,:) =  ro(k) *fftshift(dic_Ind);
 
 
     

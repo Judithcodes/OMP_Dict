@@ -9,10 +9,12 @@ tic
 TestPath='';
 WorkPath='work';
 FidLog = 'stdout';
-%%% L1 signaling commands
-% Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP2''','DVBT2.TX.BBSCRAMBLE_FDI  = ''L1Gen_tx_do''','DVBT2.TX.L1GEN_FDI   = ''madapt_tx_do''','DVBT2.TX.L1GEN_FDO   = ''L1Gen_tx_do''','DVBT2.TX.DMCELLS.ENABLE = 0','DVBT2.TX.L1GEN.ENABLE   = 1','DVBT2.TX.FBUILD.ENABLE  = 1','DVBT2.RX.DMCELLS.ENABLE  = 0','DVBT2.RX.FEXTRACT.ENABLE = 1'}};
+
+%%% L1 signaling commands (P2 and Frame closing Symbols)
+Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP1''','DVBT2.TX.BBSCRAMBLE_FDI  = ''L1Gen_tx_do''','DVBT2.TX.L1GEN_FDI   = ''madapt_tx_do''','DVBT2.TX.L1GEN_FDO   = ''L1Gen_tx_do''','DVBT2.TX.DMCELLS.ENABLE = 0','DVBT2.TX.L1GEN.ENABLE   = 1','DVBT2.TX.FBUILD.ENABLE  = 1','DVBT2.RX.DMCELLS.ENABLE  = 0','DVBT2.RX.FEXTRACT.ENABLE = 1'}};
+
 %%% Normal Symbols commands
-Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP2'''}};
+% Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP1'''}};
 
 DVBT2.CFG_TYPE = 'DVBT2BL_NOL1';  % Configuration model type
 DVBT2 = t2_cfg_wr(DVBT2,WorkPath,FidLog);  % Default configuration

@@ -155,7 +155,8 @@ for misoGroup = 1:misoGroups
              spLoc_tx_my = scatteredPilotMap(spLoc);
              EDGE_tx_my = edgePilotMap(EDGE_LOC);
 
-             if symbIdx==1
+%              if symbIdx==1
+            if(~exist('spLoc_tx_m_array', 'var'))
                  spLoc_tx_m_array = zeros(numSymb,length(spLoc_tx_my));
                  EDGE_tx_m_array = zeros(numSymb,length(EDGE_tx_my));
                  spLoc_tx_m_array_loc = zeros(numSymb,length(spLoc));

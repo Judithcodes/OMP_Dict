@@ -11,10 +11,10 @@ DVBT2.START_T2_FRAME =       0; % First T2-frame to generate (to allow generatio
 DVBT2.SPEC_VERSION = '1.1.1'; % 1.1.1 is the original blue book, 1.2.1 is with the changes agreed 2008-12-22
 
 % Overall parameters
-DVBT2.MODE          =     '1k';  % Mode
+DVBT2.MODE          =     '8k';  % Mode
 DVBT2.EXTENDED      =        0;  % Extended carrier mode: 1=extended 0=normal
-DVBT2.GI_FRACTION   =      1/16;
-DVBT2.SP_PATTERN    =    'PP2';  % Scattered pilot pattern
+DVBT2.GI_FRACTION   =      1/4;
+DVBT2.SP_PATTERN    =    'PP1';  % Scattered pilot pattern
 DVBT2.L_DATA        =       83;  % Data Symbols per T2-frame
 DVBT2.N_T2          =        2;  % Frames per superframe
 DVBT2.MISO_ENABLED  =        0;  % 1=MISO enabled 0=MISO disabled

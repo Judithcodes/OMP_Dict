@@ -27,6 +27,8 @@ SP_PATTLEN  = DVBT2.STANDARD.SP_PATTLEN; % Scattered pilots pattern length
 C_PS     = DVBT2.STANDARD.C_PS;
 L_F         = DVBT2.STANDARD.L_F;       % Symbols per frame
 N_P2        = DVBT2.STANDARD.N_P2;       % P2 symbols per frame
+L_FC        = DVBT2.STANDARD.L_FC;       % FC symbols per frame 1 or 0
+FCP_LOC     = DVBT2.STANDARD.FCP_LOC;    % FC pilots locations
 GUARD_INT = 1/DVBT2.GI_FRACTION; % Guard interval 
 nCP = fix(NFFT/GUARD_INT); % Number of samples of cyclic prefix
 C_L = (NFFT - C_PS - 1)/2 + 1;
@@ -71,6 +73,9 @@ if ENABLED
     if N_P2 > 0
         load(strcat(SIM_DIR, filesep, SP_FNAME), 'p2pLoc_rx_m_array'); % Load p2 pilot data
     end
+    if L_FC > 0
+        load(strcat(SIM_DIR, filesep, SP_FNAME), 'fcpLoc_rx_m_array'); % Load Frame closing pilot data
+    end
     
     global name0;
     global DICTIONARY;
@@ -105,7 +110,15 @@ type = symbInFrame<N_P2;
              scatteredPilotMap = t2_tx_dvbt2blfadapt_bpsk_sp(DVBT2, refSequence) .* MISOInversionData;
              pilots_tx_my = scatteredPilotMap(spLoc);
              pilotsLoc = spLoc;
-            end 
+            end
+            
+            %%% Get Frame Closing pilot locations and values
+            if((symbInFrame == L_F-L_FC))  
+                fcpLoc = FCP_LOC(find(FCP_LOC>0));
+                pilots_tx_my = scatteredPilotMap(FCP_LOC);
+                pilotsLoc = fcpLoc;
+            end
+                     
 [LEN NUM] = size(pilots_tx_my);
 loc1 = pilotsLoc(1,:);
 loc1(find(loc1==0)) = [];
@@ -150,7 +163,12 @@ dataCP = fft(dataCP, Ly2);
             r0 = y(1:numSymb);
         end
         
-        
+%%% Using Frame Closing pilots in case of FC symbol
+       if((symbInFrame == L_F-L_FC))  
+           numSymb = length(find(abs(fcpLoc_rx_m_array(index,:))>0));
+           y = fcpLoc_rx_m_array(index,1:numSymb);
+           r0 = y(1:numSymb);
+       end
         
         
    

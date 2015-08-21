@@ -60,7 +60,7 @@ if ENABLED
   % Creating dictionary for matching pursuit
   % Insert scattered pilots  
 %   L = 301;
-  L = ceil(1*0.2500/(NFFT * ts))
+  L = ceil(1*0.2500/(NFFT * ts))  %% 25% of the carrier spacing
   K = TU*GI/(1e-9)
   P = 32;
   

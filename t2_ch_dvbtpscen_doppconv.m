@@ -84,7 +84,7 @@ if strcmp(chanType,'DVBT-P')
 %------------------------------------------------------------------------------
 %%{
 Fd_norm = (1/ts)/NFFT;
-chan = rayleighchan(1/(64e6/7), Fd_norm*0.2*0.00001, Tau' * 1e-6, mag2db(Ro)');
+chan = rayleighchan(1/(64e6/7), Fd_norm*0.2, Tau' * 1e-6, mag2db(Ro)');
 %chan = rayleighchan(1/(64e6/7), 0.0001, 1 * 1e-6, mag2db(1)');
 %legacychannelsim(true)
 %reset(chan,randi(100));

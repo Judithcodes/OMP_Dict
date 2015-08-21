@@ -128,6 +128,15 @@ x = DataIn;
         
 
 % ----------------------------------------------------------------
+       if  strcmp(DVBT2.DOPPLER_DICT,'Optim-Basis')
+       %%%%% Initializing the Optimal Doppler Basis
+           J = size(DataIn,1);
+           Dop_Basis = optimizedDopplerBasis(DVBT2,J);
+%            save(strcat(SIM_DIR, filesep, 'OptimBasis'),'Dop_Basis','J'); %% Basis is already saved inside the function
+       end
+
+
+
        %data_che_est = t2_rx_bp(DVBT2, FidLogFile);
        %chan = t2_rx_ompalg(DVBT2, FidLogFile);
        chan = t2_rx_ompalg_full(DVBT2, FidLogFile);
@@ -159,6 +168,7 @@ x = DataIn;
 %load(strcat(SIM_DIR, filesep, 'h'),'h') % real channel transfer function
 %summ = 0;
 % ----------------------------------------------------------------
+H_l_k = zeros(num,NFFT);
 
 for ii = 1:num
 % ----------------------------------------------------------------
@@ -184,73 +194,86 @@ for ii = 1:num
   Indx = 0:(NFFT-1);
   
 %%%%%%%%%%%%%%%%%%%%% DELAY ATOM%%%%%%%%%%%%%%%%%%%
-  %%% Fourier Atoms
-  freqIndx = 1:NFFT;
-  freqIndx = freqIndx - (NFFT/2) - 1;
-  carSpacing = 1/TU;
-  freqIndx = 2 * pi * freqIndx * carSpacing;
-  hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
-  hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
-  hTD(k,:) = hT_DS(k,:);
-  
+switch DVBT2.DELAY_DICT
+    case 'Fourier'
+        %%% Fourier Atoms
+        freqIndx = 1:NFFT;
+        freqIndx = freqIndx - (NFFT/2) - 1;
+        carSpacing = 1/TU;
+        freqIndx = 2 * pi * freqIndx * carSpacing;
+        hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+        hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
+        hTD(k,:) = hT_DS(k,:);
+        
+    case 'Sinc'
+        %%% Sinc Atoms
+        h_sinc = ro(k) * fftshift(sinc(1*(Indx-(tau(k)*1e-6)/ts)));
+        hTD(k,:) = hTD(k,:)+ h_sinc;
+        
+    case 'Gabor'
+        %%% Gabor Atom
+        %%% Dialation by ts and translation via Tau
+        %%%Not working
+        Index_new = (Indx*ts -(tau(k)*1e-6)).^2;
+        Index_new = Index_new/((ts).^2);
+        dic_Ind = exp(-Index_new);
+        hTD(k,:) = hTD(k,:)+ ro(k) *fftshift(dic_Ind);
 
-  %%% Sinc Atoms
-%   h_sinc = ro(k) * fftshift(sinc(1*(Indx-(tau(k)*1e-6)/ts)));
-%   hTD(k,:) = h_sinc;
-
-
-%%% Gabor Atom
-%%% Dialation by ts and translation via Tau
-%%%Not working
-%     Index_new = (Indx*ts -(tau(k)*1e-6)).^2;
-%     Index_new = Index_new/((ts).^2);
-%     dic_Ind = exp(-Index_new);
-%     hTD(k,:) = hTD(k,:)+ ro(k) *fftshift(dic_Ind);
-
-
-
-%%% Wavelet(Shannon) Atoms
-%%% Dialation by ts and translation via Tau
-%     Index_new = Indx -(tau(k)*1e-6)/ts;
-%     dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
-%     hTD(k,:) =  ro(k) *fftshift(dic_Ind);
-
-
+    case 'Wavelet'
+        %%% Wavelet(Shannon) Atoms
+        %%% Dialation by ts and translation via Tau
+        Index_new = Indx -(tau(k)*1e-6)/ts;
+        dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+        hTD(k,:) =  hTD(k,:)+ ro(k) *fftshift(dic_Ind);
     
-%%% Raised cosine Filter with Wavelet(Shannon) Atoms
-%%% Dialation by ts and translation via Tau
-%     rol = 0.025;
-%     Index_new = Indx -(tau(k)*1e-6)/ts;
-%     dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
-%     Filt = cos(rol.*pi.*Index_new)./(1-((2.*rol.*Index_new).^2));
-%     hTD(k,:) =  ro(k) *fftshift(dic_Ind.*Filt);
+    case 'RC-Wavelet'
+        %%% Raised cosine Filter with Wavelet(Shannon) Atoms
+        %%% Dialation by ts and translation via Tau
+        rol = 0.025;
+        Index_new = Indx -(tau(k)*1e-6)/ts;
+        dic_Ind = (2*sinc(2*Index_new) - sinc(Index_new))/sqrt(ts);
+        Filt = cos(rol.*pi.*Index_new)./(1-((2.*rol.*Index_new).^2));
+        hTD(k,:) =  hTD(k,:)+ ro(k) *fftshift(dic_Ind.*Filt);
+        
+    case 'RC-Sinc'
+        %%% raised cosine filter with sinc Atoms
+        rol = 0.25; %0.025; % Old simulations;
+        Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
+        Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
+        h_sinc = ro(k) * fftshift(sinc(Indx_f).*Filt);
+        hTD(k,:) = hTD(k,:)+ h_sinc;
+        
+    case 'RC-Fourier'
+        %Raised Cosine filter with Fourier Atoms
 
+        rol = 0.25; %0.025; % Old simulations
+        Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
+        Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
+
+        freqIndx = 1:NFFT;
+        freqIndx = freqIndx - (NFFT/2) - 1;
+        carSpacing = 1/TU;
+        freqIndx = 2 * pi * freqIndx * carSpacing;
+        hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+        hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))).*Filt);
+        hTD(k,:) = hT_DS(k,:);
     
-    
-
-  
-%%% raised cosine filter with sinc Atoms
-%   rol = 0.25; %0.025; % Old simulations;
-%   Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
-%   Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
-%   h_sinc = ro(k) * fftshift(sinc(Indx_f).*Filt);
-%   hTD(k,:) = h_sinc;
-%   
-
-
- %Raised Cosine filter with Fourier Atoms
-
-%   rol = 0.25; %0.025; % Old simulations
-%   Indx_f = 1*(Indx-(tau(k)*1e-6)/ts);
-%   Filt = cos(rol.*pi.*Indx_f)./(1-((2.*rol.*Indx_f).^2));
-%  
-%   freqIndx = 1:NFFT;
-%   freqIndx = freqIndx - (NFFT/2) - 1;
-%   carSpacing = 1/TU;
-%   freqIndx = 2 * pi * freqIndx * carSpacing;
-%   hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
-%   hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))).*Filt);
-%   hTD(k,:) = hT_DS(k,:);
+    case 'Optim-Basis'
+        %%%% The fourier basis used in the delay domain for the optimized 
+        %%%% basis determined using the TAUBÖCK Paper
+        %%% Fourier Atoms
+        freqIndx = 1:NFFT;
+        freqIndx = freqIndx - (NFFT/2) - 1;
+        carSpacing = 1/TU;
+        freqIndx = 2 * pi * freqIndx * carSpacing;
+        hF_DS(k,:) = hF_DS(k,:) + ro(k) * exp(1j*( phi(k) - freqIndx*tau(k)*1e-6));
+        hT_DS(k,:) = fftshift(ifft(fftshift(hF_DS(k,:))));
+        hTD(k,:) = hT_DS(k,:);
+%         hTD(k,:) = fftshift(hF_DS(k,:));
+                
+        
+    otherwise, error('t2_rx_dict_tubs UNKNOWN DELAY DICTIONARY');
+end
   
 
         end
@@ -264,51 +287,106 @@ for t = 1:length(tau)
 hT_DSS(t,:) = fftshift(hT_DSS(t,:));
 
 %%%%%%%%%%%%%%%%%%%%% DOPPLER ATOM%%%%%%%%%%%%%%%%%%%
-%%% Fourier Dictionary
-%     doppIndx = fd(t)*(0:(lenDop-1));
-%     doppIndx = 2 * pi * doppIndx * ts;
-%     doppIndx = exp(1j*doppIndx);
-%     indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+
+switch DVBT2.DOPPLER_DICT
+    case 'Fourier'
+        %%% Fourier Dictionary
+        doppIndx = fd(t)*(0:(lenDop-1));
+        doppIndx = 2 * pi * doppIndx * ts;
+        doppIndx = exp(1j*doppIndx);
+        indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+        H_l_k(ii,:) = H_l_k(ii,:) + hF_DS(t,:).*indx_ds(t,:);
+        
+     %%% cosine dictionary   
+    case 'DCT-I'
+        %%%% DCT-I dictionary
+        doppIndx = 0:(lenDop-1);
+        Fd_disc = fd(t)*ts;
+        doppIndx = cos(2.*pi.*Fd_disc.* doppIndx); %DCT-I
+        indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+        
+    case 'DCT-II'
+         %%%% DCT-II dictionary
+        doppIndx = 0:(lenDop-1);
+        Fd_disc = fd(t)*ts;
+        doppIndx = cos(pi.*(doppIndx +1/2).*Fd_disc); %DCT-II
+        indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+%         H_l_k(ii,:) = H_l_k(ii,:) + hF_DS(t,:).*indx_ds(t,:);
+
+    case 'Exp-DCT-I'
+        %%%% Exponential DCT-I dictionary
+        doppIndx = 0:(lenDop-1);
+        Fd_disc = fd(t)*ts;
+        doppIndx = cos(2.*pi.*Fd_disc.* doppIndx); %DCT-I
+        doppIndx = exp(doppIndx);  % exponential DCT
+        indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);        
+        
+    case 'Exp-DCT-II'
+        %%%% Exponential DCT-II dictionary
+        doppIndx = 0:(lenDop-1);
+        Fd_disc = fd(t)*ts;
+        doppIndx = cos(pi.*(doppIndx +1/2).*Fd_disc); %DCT-II
+        doppIndx = exp(doppIndx);  % exponential DCT
+        indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
+        
+    case 'Gabor'
+        %gabor dictionary
+        Indx1 = 0:lenDop-1;
+        doppIndx = Indx1*ts - (tau(t)*1e-6);
+        doppIndx = 2*pi*fd(t)*doppIndx;
+        indx_ds(t,:) = cos(doppIndx(nCP+1:nCP+NFFT) + phi(t));
+        
+    case 'Wavelet'
+        %%% Wavelet(Morlet) Atom
+        %%% Dialation by (ts) and translation via Fd
+        
+        doppIndx = 0:(lenDop-1);
+        doppIndx = doppIndx*ts;% - (tau(k)*1e-6);
+        dic_Ind = exp(1j*2*pi*fd(t).*doppIndx).*exp(-(doppIndx.^2)/2)./(pi.^(1/4));
+        indx_ds(t,:)= dic_Ind(nCP+1:nCP+NFFT);
+        
+        %%% Wavelet(Shannon) Atoms
+        %%% Dialation by (1/TU) and translation via Fd
+        %%% Not working
+%         doppIndx = 1:lenDop;
+%         doppIndx = doppIndx - (lenDop/2) -1;
+%         carSpacing = 1/TU;
+%         doppIndx = doppIndx -fd(k)/(carSpacing);
+%         dic_Ind = (2*sinc(2*doppIndx) - sinc(doppIndx))/sqrt(carSpacing);
+%         indx_ds(t,:) = fftshift(ifft(fftshift(dic_Ind(nCP+1:nCP+NFFT))));
 
 
-%%% cosine dictionary
-  doppIndx = 0:(lenDop-1);
-  Fd_disc = fd(t)*ts;
-%   doppIndx = cos(2.*pi.*Fd_disc.* doppIndx); %DCT-I
+    case 'Optim-Basis'
+        %%%% The optimized basis determined using the TAUBÖCK Paper
+        load(strcat(SIM_DIR, filesep, 'OptimBasis'),'Dop_Basis','J');
+        i_val = (-J/2:J/2-1);
+        ind_i = round(TU*fd(t)*J);
+        ind_i = find(i_val ==ind_i);
+        
+        %%% The basis which corresponds to the current doppler frequency
+        Dop_Basis_curr = Dop_Basis(:,ind_i);
+        Dop_Basis_curr = Dop_Basis_curr(ii); %% This value corrsponds to the doppler for each element of the delay atom
+        
+%         dic_Ind = Dop_Basis_curr * hT_DSS(t,:);
+%         hT_DSS(t,:) = ifft(dic_Ind,NFFT);
+%         indx_ds(t,:)= ones(1,NFFT);                                   %%% For H./
+        
+%         H_l_k(ii,:) = H_l_k(ii,:) + fftshift(fft(fftshift(hTD(t,:))))*Dop_Basis_curr;        %%% For H./ with RC-Fourier
+       
 
-%   doppIndx = exp(doppIndx);  % exponential DCT
+        dic_Ind = Dop_Basis_curr*ones(1,lenDop);                         %%% FOR LSQR
+        
+%         dic_Ind = fftshift(ifft(fftshift(dic_Ind))); 
+        
+        indx_ds(t,:)= dic_Ind(nCP+1:nCP+NFFT);                          %%% FOR rLSQR
+        
+%         H_l_k(ii,:) = H_l_k(ii,:) + hF_DS(t,:)*Dop_Basis_curr;        %%% For H./
 
-  doppIndx = cos(pi.*(doppIndx +1/2).*Fd_disc); %DCT-II
-  indx_ds(t,:) = doppIndx(nCP+1:nCP+NFFT);
-
-
-  
-%gabor dictionary  
-  
-%   Indx1 = 0:lenDop-1;
-%   doppIndx = Indx1*ts - (tau(k)*1e-6);
-%   doppIndx = 2*pi*fd(k)*doppIndx;
-%   indx_ds(t,:) = cos(doppIndx(nCP+1:nCP+NFFT) + phi(k));
+        
+    otherwise, error('t2_rx_dict_tubs UNKNOWN DOPPLER DICTIONARY');        
+end
 
 
-%%% Wavelet(Shannon) Atoms
-%%% Dialation by (1/TU) and translation via Fd
-%%% Not working
-%   doppIndx = 1:lenDop;
-%   doppIndx = doppIndx - (lenDop/2) -1;
-%   carSpacing = 1/TU;
-%   doppIndx = doppIndx -fd(k)/(carSpacing);
-%   dic_Ind = (2*sinc(2*doppIndx) - sinc(doppIndx))/sqrt(carSpacing);
-%   indx_ds(t,:) = fftshift(ifft(fftshift(dic_Ind(nCP+1:nCP+NFFT))));
-
-%%% Wavelet(Morlet) Atom
-%%% Dialation by (ts) and translation via Fd
-%%% 
-%   doppIndx = 0:(lenDop-1);
-%   doppIndx = doppIndx*ts;% - (tau(k)*1e-6);
-%   dic_Ind = exp(1j*2*pi*fd(k).*doppIndx).*exp(-(doppIndx.^2)/2)./(pi.^(1/4));
-%   indx_ds(t,:)= dic_Ind(nCP+1:nCP+NFFT);
-%   
   
 
 
@@ -389,6 +467,10 @@ dataAux_lsqr = (sqrt(27*C_PS)/(5*NFFT))*(fft(x, NFFT, 2));
 %dataAux = fftshift(DataEqualized, 2);
 %dataAux = fftshift(dataAux_lmmse, 2);
 dataAux = fftshift(dataAux_lsqr, 2);
+% if  strcmp(DVBT2.DOPPLER_DICT,'Optim-Basis')
+%     dataAux = data_noncorrected ./ H_l_k;                               %%% For H./
+% end
+
 hEstCh = data_noncorrected./dataAux;
 save(strcat(SIM_DIR, filesep, 'hEstCh'),'hEstCh')
 

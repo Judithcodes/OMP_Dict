@@ -22,6 +22,11 @@ DVBT2 = cfg_indep_var(DVBT2,WorkPath);
 DVBT2 = override_params(DVBT2, Commandline_Params);
 DVBT2.STD_TYPE='DVBT2BL';
 DVBT2.STANDARD = t2_std_config_wr(DVBT2);
+%%% For different types of delay and doppler dictionaries. more information
+%%% in t2_rx_dict_tubs.m
+
+DVBT2.DELAY_DICT = 'Optim-Basis';
+DVBT2.DOPPLER_DICT = 'Optim-Basis';
 %Load test scenarios
 scenarios = cfg_scenario();
 k=1;
@@ -43,9 +48,19 @@ k=1;
   K = 100;  
   L = 100;
   ber_pilot = []; %modified
-  snr_pilot = []; %modified
-  snr_scn = [0 0:5:45];
-   snr_scn = [45];
+  snr_pilot = []; %modified 
+  
+% if  strcmp(DVBT2.DOPPLER_DICT,'Optim-Basis')
+%     %%%%% Initializing the Optimized basis
+%     J = 6; %DVBT2.STANDARD.L_F;
+%     Dop_Basis = optimizedDopplerBasis(DVBT2,J);
+%     save(strcat(SIM_DIR, filesep, 'OptimBasis'),'Dop_Basis','J');
+% end
+
+   
+   snr_scn = [0 0:5:45];
+   snr_scn = [45];  
+   
   for j=1:length(snr_scn) %modified
       ll = 0;
     %   kk = 45;

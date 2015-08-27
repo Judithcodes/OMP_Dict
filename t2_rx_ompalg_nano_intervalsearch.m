@@ -424,7 +424,7 @@ s1_1n = s1_1n(1);
 % +++++++++++++++++++++++++++++++
 % +++++++++++++++++++++++++++++++
 % Here we search for 1000 DS
-  band_d = 1;
+  band_d = 9;
   l_num = ceil(L/1000);
   k_num = 1;
   dictionary = zeros(l_num*k_num,1,numSymb+1);

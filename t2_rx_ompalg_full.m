@@ -24,6 +24,7 @@ NFFT     = DVBT2.STANDARD.NFFT;  % FFT number of points
 PN_SEQ      = DVBT2.STANDARD.PN_SEQ;     % PN sequence
 SP_LOC      = DVBT2.STANDARD.SP_LOC;     % Scattared pilots locations
 SP_PATTLEN  = DVBT2.STANDARD.SP_PATTLEN; % Scattered pilots pattern length
+EDGE_LOC    = DVBT2.STANDARD.EDGE_LOC;   % Edge pilots locations
 C_PS     = DVBT2.STANDARD.C_PS;
 L_F         = DVBT2.STANDARD.L_F;       % Symbols per frame
 N_P2        = DVBT2.STANDARD.N_P2;       % P2 symbols per frame
@@ -49,6 +50,7 @@ if ENABLED
     end
 
     load(strcat(SIM_DIR, filesep, 'sp_tx_do'), 'spLoc_tx_m_array'); % Load data
+    load(strcat(SIM_DIR, filesep, 'EDGEcen_ch_do'), 'EDGE_tx_m_array'); % Load data
 
      if (MISO_ENABLED)
      else
@@ -68,7 +70,7 @@ if ENABLED
     fd = -1*ones(num,P);
     tau = -1*ones(num,P);
     phi = -1*ones(num,P);    
-    load(strcat(SIM_DIR, filesep, SP_FNAME), 'spLoc_rx_m_array'); % Load data
+    load(strcat(SIM_DIR, filesep, SP_FNAME), 'spLoc_rx_m_array','edge_rx_m_array'); % Load data
     
     if N_P2 > 0
         load(strcat(SIM_DIR, filesep, SP_FNAME), 'p2pLoc_rx_m_array'); % Load p2 pilot data
@@ -102,14 +104,32 @@ type = symbInFrame<N_P2;
              pilots_tx_my = P2PilotMap(P2P_LOC);
              pilotsLoc = P2P_LOC;
             else
+                if(DVBT2.CHANTRACK == 1)                                             %%%% Channel Tracking
+                    index = num;
+                    symbInFrame = mod(index-1, L_F);
+                end
+                
              % Get scattered pilot locations and pattern length
              spLoc = SP_LOC(mod(symbInFrame,SP_PATTLEN)+1, :);
              spLoc = spLoc(spLoc>0);
              refSequence = xor(prbs, PN_SEQ(symbInFrame + 1));
              MISOInversionData(1:C_PS) = 1;
              scatteredPilotMap = t2_tx_dvbt2blfadapt_bpsk_sp(DVBT2, refSequence) .* MISOInversionData;
-             pilots_tx_my = scatteredPilotMap(spLoc);
-             pilotsLoc = spLoc;
+%              pilots_tx_my = scatteredPilotMap(spLoc);
+%              pilotsLoc = spLoc;
+            sym = zeros(1,C_PS);
+            sym(spLoc) = 1;
+            sym(EDGE_LOC) = 1;
+            pilotsLoc = find(sym);
+             
+            sym = nan(1,C_PS);
+            sym(spLoc) = scatteredPilotMap(spLoc);
+            sym(EDGE_LOC) = EDGE_tx_m_array(index,:);
+            pilots_tx_my = sym(find(~isnan(sym)));
+            
+%             pilotsLoc = [EDGE_LOC(1) spLoc EDGE_LOC(end)];
+%             pilots_tx_my = [EDGE_tx_m_array(index,:) scatteredPilotMap(spLoc) EDGE_tx_m_array(index,end)];
+             
             end
             
             %%% Get Frame Closing pilot locations and values
@@ -147,6 +167,14 @@ dataCP = fft(dataCP, Ly2);
         end
         
         y = spLoc_rx_m_array(index,1:numSymb); % received sp signal
+%         y = [edge_rx_m_array(index,1) spLoc_rx_m_array(index,1:numSymb) edge_rx_m_array(index,2)]; % received sp signal
+        if type == 0
+             sym = nan(1,C_PS);            
+            sym(spLoc) = spLoc_rx_m_array(index,1:length(spLoc));
+            sym(EDGE_LOC) = edge_rx_m_array(index,:);
+            y = sym(find(~isnan(sym)));
+            numSymb =  length(y);
+        end
         I = [];
         h = [];
         tau0 = [];
@@ -296,6 +324,12 @@ phi(index,1:length(tau0)) = zeros(1,length(tau0));
 ro(index,1:length(h)) = h;
 tau(index,1:length(tau0)) = tau0;
 fd(index,1:length(fd0)) = fd0;
+
+if(DVBT2.CHANTRACK == 1)                                             %%%% Channel Tracking
+    if(index == num)
+        break;
+    end
+end
 
     end
 

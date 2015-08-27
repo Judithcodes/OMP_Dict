@@ -18,6 +18,7 @@ TU         = DVBT2.STANDARD.TU;     % Length in s of the OFDM symbol data part
 L_F         = DVBT2.STANDARD.L_F;       % Symbols per frame
 SP_PATTLEN  = DVBT2.STANDARD.SP_PATTLEN; % Scattered pilots pattern length
 SP_LOC      = DVBT2.STANDARD.SP_LOC;     % Scattared pilots locations
+EDGE_LOC    = DVBT2.STANDARD.EDGE_LOC;   % Edge pilots locations
 SP_FNAME   = DVBT2.RX.SP_FDO;      % SP file
 
 SIM_DIR      = DVBT2.SIM.SIMDIR;          % Saving directory
@@ -64,11 +65,14 @@ x = DataIn;
             spLoc = spLoc(find(spLoc>0));
             % Assign pilot signals before marking them
             spLoc_rx_my = data(symbIdx,C_L+spLoc);
+            edge_rx_my = data(symbIdx,C_L+EDGE_LOC);
             if symbIdx==1
                 spLoc_rx_m_array = zeros(numSymb,length(spLoc_rx_my));
                 p_sp_rx_m_array = zeros(numSymb,length(data_noncorrected(1,:)));
+                edge_rx_m_array = zeros(numSymb,length(edge_rx_my));
             end
              spLoc_rx_m_array(symbIdx,1:length(spLoc_rx_my)) = spLoc_rx_my;
+             edge_rx_m_array(symbIdx,1:length(edge_rx_my)) = edge_rx_my;
              p_data = zeros(1,length(C_LOC));
              p_data(spLoc) = spLoc_rx_my;
              p_sp_rx_m_array(symbIdx,C_LOC) = p_data;
@@ -76,7 +80,7 @@ x = DataIn;
 
         % Write scattered pilot to file
         if ~strcmp(SP_FNAME, '')
-         save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array')
+         save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','edge_rx_m_array')
          fprintf(FidLogFile,'\t\tScattered pilot output  saved in file: %s\n',...
          SP_FNAME);
         end
@@ -109,14 +113,14 @@ x = DataIn;
             if L_FC > 0
             %%% Write P2 and FC pilot to file
                 if ~strcmp(SP_FNAME, '')
-                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array','fcpLoc_rx_m_array')
+                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','edge_rx_m_array','p2pLoc_rx_m_array','fcpLoc_rx_m_array')
                  fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
                  SP_FNAME);
                 end        
             else
                 % Write P2 pilot to file
                 if ~strcmp(SP_FNAME, '')
-                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','p2pLoc_rx_m_array')
+                 save(strcat(SIM_DIR, filesep, SP_FNAME),'spLoc_rx_m_array','edge_rx_m_array','p2pLoc_rx_m_array')
                  fprintf(FidLogFile,'\t\tP2 pilot output  saved in file: %s\n',...
                  SP_FNAME);
                 end 
@@ -131,6 +135,7 @@ x = DataIn;
        if  strcmp(DVBT2.DOPPLER_DICT,'Optim-Basis')
        %%%%% Initializing the Optimal Doppler Basis
            J = size(DataIn,1);
+           J = 32;
            Dop_Basis = optimizedDopplerBasis(DVBT2,J);
 %            save(strcat(SIM_DIR, filesep, 'OptimBasis'),'Dop_Basis','J'); %% Basis is already saved inside the function
        end
@@ -141,6 +146,15 @@ x = DataIn;
        %chan = t2_rx_ompalg(DVBT2, FidLogFile);
        chan = t2_rx_ompalg_full(DVBT2, FidLogFile);
        %data_che_est = t2_rx_bmpalg_full(DVBT2, FidLogFile);
+       
+       if(DVBT2.CHANTRACK == 1)                                             %%%% Channel Tracking
+           %%% Channel Tracking wil be used for Normal Symbols excluding FC and  P2 Symbols                                                        %%%% Channel Tracking
+           for index = (N_P2+1):(numSymb-L_FC)
+               chan.tau(index,:) = chan.tau(N_P2,:);
+               chan.fd(index,:) = chan.fd(N_P2,:);
+               chan.ro(index,:) = chan.ro(N_P2,:);
+           end
+       end
 
       %F = dftmtx(NFFT);
       %F_H = conj(F);
@@ -470,6 +484,13 @@ dataAux = fftshift(dataAux_lsqr, 2);
 % if  strcmp(DVBT2.DOPPLER_DICT,'Optim-Basis')
 %     dataAux = data_noncorrected ./ H_l_k;                               %%% For H./
 % end
+
+if(DVBT2.CHANTRACK == 1)
+    %%%% Performing Channel tracking and equalization
+    dataAux = t2_rx_dvbt2ChanTrack(DVBT2, FidLogFile, dataAux);             %%%% Channel Tracking
+end
+
+
 
 hEstCh = data_noncorrected./dataAux;
 save(strcat(SIM_DIR, filesep, 'hEstCh'),'hEstCh')

@@ -25,8 +25,9 @@ DVBT2.STANDARD = t2_std_config_wr(DVBT2);
 %%% For different types of delay and doppler dictionaries. more information
 %%% in t2_rx_dict_tubs.m
 
-DVBT2.DELAY_DICT = 'Optim-Basis';
-DVBT2.DOPPLER_DICT = 'Optim-Basis';
+DVBT2.DELAY_DICT = 'Fourier';
+DVBT2.DOPPLER_DICT = 'Fourier';
+DVBT2.CHANTRACK = 0;
 %Load test scenarios
 scenarios = cfg_scenario();
 k=1;
@@ -106,4 +107,4 @@ k=1;
     %####################################################################
  end  %modified
 toc
-save('snr_ber_ORG.mat','ber_pilot', 'snr_pilot') %modified
+save('snr_ber_ChanTrack.mat','ber_pilot', 'snr_pilot') %modified

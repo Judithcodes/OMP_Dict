@@ -30,7 +30,7 @@ nCP = NFFT*GI; % Cyclic prefic length
 N = NFFT + nCP; % Symbol Duration
 % L = 16;  %% Number of symbols Assumed value
 J = L; %%% Assumütion where as J<=L
-v_max = 0.20/TU;  %% maximum doppler shift
+v_max = 0.25/TU;  %% maximum doppler shift
 m = 0; %% for CP OFDM
 rou = 1; %% The optimization constraint.
 thresh = 1e-6;  %% Threshold on the optimization constraint

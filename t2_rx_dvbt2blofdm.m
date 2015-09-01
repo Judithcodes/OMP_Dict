@@ -409,19 +409,19 @@ end
 %indx_ds_rev = (ifft(indx_ds_rev));
 %hT_DSS(t,:) = indx_ds_rev.*hT_DSS(t,:);
 end
-for t = 1:length(tau)
-    for r = 1:NFFT
-        %h_m(t,r) = hT_DSS(t,NFFT-r+1);
-    end
-end
+% for t = 1:length(tau)
+%     for r = 1:NFFT
+%         %h_m(t,r) = hT_DSS(t,NFFT-r+1);
+%     end
+% end
 %H_c = zeros(NFFT,NFFT);
-for c = 1:NFFT
-    %row = zeros(1,NFFT);
-    for t = 1:length(tau)
-        %row = row + indx_ds(t, c)*circshift(h_m(t,:), [1 c]);
-    end
-%H_c(c,1:NFFT) = row;
-end
+% for c = 1:NFFT
+%     %row = zeros(1,NFFT);
+%     for t = 1:length(tau)
+%         %row = row + indx_ds(t, c)*circshift(h_m(t,:), [1 c]);
+%     end
+% %H_c(c,1:NFFT) = row;
+% end
 BEM_Cf = hT_DSS;
 BEM_seq = indx_ds(:,1:NFFT);
 %CIR = (BEM_Cf.'*BEM_seq).';
@@ -463,15 +463,15 @@ end
 %A_inv = NFFT*inv(A);
 
 %DataEqualized = dataAux;
-for n = 1:num
-%DataEqualized(n,:) = A_inv*DataEqualized(n,:).';
-end
+% for n = 1:num
+% %DataEqualized(n,:) = A_inv*DataEqualized(n,:).';
+% end
 
 % ----------------------------------------------------------------
 % LMMSE Analysis of pilot patterns and channel estimation for DVB-T2
-for n = 1:num
-%x(n,:) = ((conj(H_c)*inv(H_c*conj(H_c))+eye(NFFT)/snr)*y(n,:).');
-end
+% for n = 1:num
+% %x(n,:) = ((conj(H_c)*inv(H_c*conj(H_c))+eye(NFFT)/snr)*y(n,:).');
+% end
 %dataAux_lmmse = (sqrt(27*C_PS)/(5*NFFT))*fft(x, NFFT, 2);
 dataAux_lsqr = (sqrt(27*C_PS)/(5*NFFT))*(fft(x, NFFT, 2));
 

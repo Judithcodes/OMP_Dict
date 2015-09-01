@@ -10,6 +10,14 @@ TestPath='';
 WorkPath='work';
 FidLog = 'stdout';
 
+%%% For different types of delay and doppler dictionaries. more information
+%%% in t2_rx_dict_tubs.m
+
+DVBT2.DELAY_DICT = 'Fourier';
+DVBT2.DOPPLER_DICT = 'Fourier';
+DVBT2.CHANTRACK = 1;
+DVBT2.NoP2Data = 1;  %% Set to 1 inorder to include no data in P2 Symbols
+
 %%% L1 signaling commands (P2 and Frame closing Symbols)
 Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP1''','DVBT2.TX.BBSCRAMBLE_FDI  = ''L1Gen_tx_do''','DVBT2.TX.L1GEN_FDI   = ''madapt_tx_do''','DVBT2.TX.L1GEN_FDO   = ''L1Gen_tx_do''','DVBT2.TX.DMCELLS.ENABLE = 0','DVBT2.TX.L1GEN.ENABLE   = 1','DVBT2.TX.FBUILD.ENABLE  = 1','DVBT2.RX.DMCELLS.ENABLE  = 0','DVBT2.RX.FEXTRACT.ENABLE = 1'}};
 
@@ -22,12 +30,7 @@ DVBT2 = cfg_indep_var(DVBT2,WorkPath);
 DVBT2 = override_params(DVBT2, Commandline_Params);
 DVBT2.STD_TYPE='DVBT2BL';
 DVBT2.STANDARD = t2_std_config_wr(DVBT2);
-%%% For different types of delay and doppler dictionaries. more information
-%%% in t2_rx_dict_tubs.m
 
-DVBT2.DELAY_DICT = 'Fourier';
-DVBT2.DOPPLER_DICT = 'Fourier';
-DVBT2.CHANTRACK = 1;
 %Load test scenarios
 scenarios = cfg_scenario();
 k=1;
@@ -60,7 +63,7 @@ k=1;
 
    
    snr_scn = [0 0:5:45];
-%    snr_scn = [45];  
+   snr_scn = [45];  
    
   for j=1:length(snr_scn) %modified
       ll = 0;

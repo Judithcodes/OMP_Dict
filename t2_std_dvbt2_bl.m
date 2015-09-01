@@ -447,6 +447,10 @@ else
 end
 STD.C_P2 = length(find(symbol==0));
 
+if DVBT2.NoP2Data == 1
+    STD.C_P2 = 1045;
+end
+
     % Normal symbols
 symbol = zeros(1, C_PS);
 symbol(spLoc) = 1;

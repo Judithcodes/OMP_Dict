@@ -38,8 +38,8 @@ DVBT2.PLP.BW            =         8; % Bandwidth in MHz (8, 7, 6 or 5)
 DVBT2.PLP(1).CONSTELLATION =  '64-QAM'; % Constellation
 DVBT2.PLP(1).CRATE         =     '2/3'; % High priority stream coding rate
 DVBT2.PLP(1).FECLEN        =     16200; % either 64800 or 16200
-DVBT2.PLP(1).NBLOCKS       =       46; % Number of FEC blocks in one Interleaving Frame 
-DVBT2.PLP(1).NUM_BLOCKS_MAX =       46; % Max number of FEC blocks in one Interleaving Frame
+DVBT2.PLP(1).NBLOCKS       =       44; % Number of FEC blocks in one Interleaving Frame 
+DVBT2.PLP(1).NUM_BLOCKS_MAX =       44; % Max number of FEC blocks in one Interleaving Frame
 DVBT2.PLP(1).NTI           =         3; % Number of TI blocks in Interleaving Frame 
                                         % (if 0 the interleaver is bypassed)
 DVBT2.PLP(1).P_I           =         1; % Number of T2-frames to which Interleaving Frame is mapped

@@ -27,7 +27,7 @@ DVBT2.STANDARD = t2_std_config_wr(DVBT2);
 
 DVBT2.DELAY_DICT = 'Fourier';
 DVBT2.DOPPLER_DICT = 'Fourier';
-DVBT2.CHANTRACK = 0;
+DVBT2.CHANTRACK = 1;
 %Load test scenarios
 scenarios = cfg_scenario();
 k=1;
@@ -60,7 +60,7 @@ k=1;
 
    
    snr_scn = [0 0:5:45];
-   snr_scn = [45];  
+%    snr_scn = [45];  
    
   for j=1:length(snr_scn) %modified
       ll = 0;
@@ -107,4 +107,4 @@ k=1;
     %####################################################################
  end  %modified
 toc
-save('snr_ber_ChanTrack.mat','ber_pilot', 'snr_pilot') %modified
+save('snr_ber_Four_Four_ChanAmpTrackBand9.mat','ber_pilot', 'snr_pilot') %modified

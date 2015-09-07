@@ -16,7 +16,7 @@ FidLog = 'stdout';
 DVBT2.DELAY_DICT = 'Fourier';
 DVBT2.DOPPLER_DICT = 'Fourier';
 DVBT2.CHANTRACK = 1;
-DVBT2.NoP2Data = 1;  %% Set to 1 inorder to include no data in P2 Symbols
+DVBT2.P2Data = 0;  %% Set to 1 inorder to include no data in P2 Symbols
 
 %%% L1 signaling commands (P2 and Frame closing Symbols)
 Commandline_Params = {{'DVBT2.STRICT=0','DVBT2.TX.ENABLE=1','DVBT2.MISO_ENABLED=0','DVBT2.CH.PSCEN.CHSTR.TYPE=''DVBT-P''','DVBT2.SP_PATTERN=''PP1''','DVBT2.TX.BBSCRAMBLE_FDI  = ''L1Gen_tx_do''','DVBT2.TX.L1GEN_FDI   = ''madapt_tx_do''','DVBT2.TX.L1GEN_FDO   = ''L1Gen_tx_do''','DVBT2.TX.DMCELLS.ENABLE = 0','DVBT2.TX.L1GEN.ENABLE   = 1','DVBT2.TX.FBUILD.ENABLE  = 1','DVBT2.RX.DMCELLS.ENABLE  = 0','DVBT2.RX.FEXTRACT.ENABLE = 1'}};
@@ -110,4 +110,4 @@ k=1;
     %####################################################################
  end  %modified
 toc
-save('snr_ber_Four_Four_ChanAmpTrackBand9.mat','ber_pilot', 'snr_pilot') %modified
+save('snr_ber_Raw.mat','ber_pilot', 'snr_pilot') %modified

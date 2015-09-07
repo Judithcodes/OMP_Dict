@@ -254,7 +254,7 @@ for m = 0:NUM_SIM_T2_FRAMES-1
     frameOut(frameOut == 0) = [frameAddressedCells thinningCells];
     
     %%% Do not include L1 signaling in the P2 symbols
-    if DVBT2.NoP2Data == 1
+    if DVBT2.P2Data == 0
         frameOut(1:D_L1/N_P2, 1:N_P2) = 0;
     end
 

@@ -447,7 +447,7 @@ else
 end
 STD.C_P2 = length(find(symbol==0));
 
-if DVBT2.NoP2Data == 1
+if DVBT2.P2Data == 0
     STD.C_P2 = 1045;     %%% Number symbols used for L1 signaling in each frame. May depend on factors Confirm
 end
 

@@ -147,15 +147,23 @@ x = DataIn;
        chan = t2_rx_ompalg_full(DVBT2, FidLogFile);
        %data_che_est = t2_rx_bmpalg_full(DVBT2, FidLogFile);
        
+       
        if(DVBT2.CHANTRACK == 1)                                             %%%% Channel Tracking
-           %%% Channel Tracking wil be used for Normal Symbols excluding FC and  P2 Symbols                                                        %%%% Channel Tracking
+           %%% Channel Tracking wil be used for Normal Symbols excluding FC and  P2 Symbols         %%%% Channel Tracking
+           ch_1 = chan.ro(1:N_P2,:);
+           ch_1 = ch_1~=-1;
+           ch_1 = sum(ch_1,2);
+           P2_ind = find(ch_1 == min(ch_1));
+           P2_ind = P2_ind(1);
+%            P2_ind = N_P2;
+
            for index = (N_P2+1):(numSymb-L_FC)
-               chan.tau(index,:) = chan.tau(N_P2,:);
-               chan.fd(index,:) = chan.fd(N_P2,:);
-               chan.ro(index,:) = chan.ro(N_P2,:);
+               chan.tau(index,:) = chan.tau(P2_ind,:);
+               chan.fd(index,:) = chan.fd(P2_ind,:);
+               chan.ro(index,:) = chan.ro(P2_ind,:);
            end
        end
-
+       
       %F = dftmtx(NFFT);
       %F_H = conj(F);
 
